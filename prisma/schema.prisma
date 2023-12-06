@@ -47,6 +47,7 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
+  lectures      Lecture[]
 }
 
 model VerificationToken {
@@ -55,4 +56,28 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+model Subject{
+  id String @id @default(uuid())
+  name String
+  categoryId String
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  lectures Lecture[]
+}
+
+model Category{
+  id String @id @default(uuid())
+  desc String
+  subject Subject[]
+}
+
+model Lecture {
+  id String @id @default(uuid())
+  tutorId String
+  tutor User @relation(fields: [tutorId], references: [id], onDelete: Cascade)
+  subjectId String
+  subject Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  start_at DateTime
+  end_to DateTime?
 }
