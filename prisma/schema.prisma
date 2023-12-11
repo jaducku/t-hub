@@ -47,7 +47,15 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
+  userProfile   UserProfile?
   lectures      Lecture[]
+}
+
+model UserProfile {
+  id String @id @default(uuid())
+  user User @relation(fields: [userId] , references: [id])
+  userId String @unique
+  
 }
 
 model VerificationToken {
@@ -58,26 +66,37 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-model Subject{
-  id String @id @default(uuid())
-  name String
-  categoryId String
-  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  lectures Lecture[]
-}
-
 model Category{
   id String @id @default(uuid())
   desc String
   subject Subject[]
 }
 
+model Subject{
+  id String @id @default(uuid())
+  name String
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  categoryId String
+  lectures Lecture[]
+}
+
 model Lecture {
   id String @id @default(uuid())
-  tutorId String
+  title String
+  overview String
   tutor User @relation(fields: [tutorId], references: [id], onDelete: Cascade)
+  tutorId String
+  subject Subject @relation(fields: [subjectId], references: [id])
   subjectId String
-  subject Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  syllabus Syllabus[]
   start_at DateTime
   end_to DateTime?
+}
+
+model Syllabus {
+  id String @id @default(uuid())
+  seq Int
+  desc String
+  lecture Lecture @relation(fields: [lectureId], references: [id], onDelete: Cascade)
+  lectureId String
 }
