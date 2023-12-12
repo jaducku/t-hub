@@ -39,6 +39,14 @@ model Session {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
 model User {
   id            String    @id @default(cuid())
   name          String?
@@ -48,35 +56,35 @@ model User {
   accounts      Account[]
   sessions      Session[]
   userProfile   UserProfile?
-  lectures      Lecture[]
+  tutor         Tutor?
+  student       Student?
+}
+
+model Tutor {
+  id String @id @default(uuid())
+  user User @relation(fields: [userId], references: [id])
+  userId String @unique
+  subject Subject[]
+}
+
+model Student {
+  id String @id @default(uuid())
+  user User @relation(fields: [userId], references: [id])
+  userId String @unique
+  enrollment Enrollment[]
 }
 
 model UserProfile {
   id String @id @default(uuid())
   user User @relation(fields: [userId] , references: [id])
   userId String @unique
-  
-}
-
-model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
-
-  @@unique([identifier, token])
-}
-
-model Category{
-  id String @id @default(uuid())
-  desc String
-  subject Subject[]
 }
 
 model Subject{
   id String @id @default(uuid())
   name String
-  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  categoryId String
+  tutorId String
+  tutor Tutor @relation(fields: [tutorId],references: [id])
   lectures Lecture[]
 }
 
@@ -84,19 +92,17 @@ model Lecture {
   id String @id @default(uuid())
   title String
   overview String
-  tutor User @relation(fields: [tutorId], references: [id], onDelete: Cascade)
-  tutorId String
   subject Subject @relation(fields: [subjectId], references: [id])
   subjectId String
-  syllabus Syllabus[]
   start_at DateTime
   end_to DateTime?
+  enrollment Enrollment[]
 }
 
-model Syllabus {
+model Enrollment {
   id String @id @default(uuid())
-  seq Int
-  desc String
-  lecture Lecture @relation(fields: [lectureId], references: [id], onDelete: Cascade)
   lectureId String
+  lecture Lecture @relation(fields: [lectureId],references: [id])
+  studentId String
+  student Student @relation(fields: [studentId], references: [id])
 }
