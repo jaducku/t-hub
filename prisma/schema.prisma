@@ -60,6 +60,12 @@ model User {
   student       Student?
 }
 
+model Menu {
+  id String @id @default(uuid())
+  name String
+  uri String
+}
+
 model Tutor {
   id String @id @default(uuid())
   user User @relation(fields: [userId], references: [id])
